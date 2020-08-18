@@ -7,6 +7,7 @@ namespace thomasesmith\VWCarNet;
 use GuzzleHttp;
 use SimpleXMLElement;
 
+
 class Authentication {
 
 	const AUTH_HOST = 'https://identity.na.vwgroup.io';

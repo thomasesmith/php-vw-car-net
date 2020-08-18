@@ -7,6 +7,7 @@ namespace thomasesmith\VWCarNet;
 use GuzzleHttp;
 use thomasesmith\VWCarNet\Authentication;
 
+
 class API {
 
 	const API_HOST = 'https://b-h-s.spr.us00.p.con-veh.net';
@@ -32,6 +33,8 @@ class API {
 	{
 		$this->Authentication = $Authentication;
 		$this->pin = $pin;
+
+		// Set up a new Guzzle client with some defaults
 		$this->client = new GuzzleHttp\Client([
 											'version' => 2, 
 											'base_uri' => self::API_HOST,
@@ -61,11 +64,32 @@ class API {
 
 	public function getCurrentlySelectedVehicle(): array
 	{
-		// if there isn't one set, default to user's first vehicle.
+		// If there isn't one explicitly set, default to first vehicle in their list.
 		if (!$this->currentlySelectedVehicle) 
 			$this->currentlySelectedVehicle = $this->getVehiclesAndEnrollmentStatus()['vehicleEnrollmentStatus'][0];
 
 		return $this->currentlySelectedVehicle;
+	}
+
+
+	public function setCurrentlySelectedVehicle(string $vehicleId): void
+	{
+		$count = 0;
+
+		foreach ($this->getVehiclesAndEnrollmentStatus()['vehicleEnrollmentStatus'] as $vehicle) {
+			if ($vehicleId == $vehicle['vehicleId']) {
+				// Found it, break loop
+				$index = $count;
+				break;
+			}
+
+			$count++;
+		}
+
+		if (isset($index))
+			$this->currentlySelectedVehicle = $this->getVehiclesAndEnrollmentStatus()['vehicleEnrollmentStatus'][$index];
+
+		throw new \Exception('That vehicle id was not found in your vehicles list.');
 	}
 
 
@@ -133,21 +157,6 @@ class API {
 			return $this->getVehicleStatus()['powerStatus'];
 
 		throw new \Exception('No power status information in the vehicle status.');
-	}
-
-
-	public function getTspToken(): string
-	{
-		if (!$this->tspToken || time() >= $this->tspTokenExpires)
-			$this->fetchTspToken();
-		
-		return $this->tspToken;
-	}
-
-
-	public function getTspTokenExpire(): int
-	{
-		return $this->tspTokenExpires;
 	}
 
 
@@ -229,6 +238,16 @@ class API {
 
 	// Private Methods ////////////////////
 
+	private function getTspToken(): string
+	{
+		// If the tsp token is not yet set, or has expired, refetch it before returning...
+		if (!$this->tspToken || time() >= $this->tspTokenExpires)
+			$this->fetchTspToken();
+		
+		return $this->tspToken;
+	}
+
+
 	private function fetchTspToken(): void
 	{
 		$url = '/ss/v1/user/' . $this->getUserId() . '/vehicle/' . $this->getCurrentlySelectedVehicle()['vehicleId'] . '/session';
@@ -250,7 +269,7 @@ class API {
 		$this->tspToken = $responseJson['data']['tspToken'];
 
 		// The api doesn't give expiration information for this token, 
-		// so we'll set an expiry ourselves of 30 minutes.
+		// so we'll set an expiry ourselves of 30 minutes from now.
 		$this->tspTokenExpires = time() + 3600;
 	}
 

@@ -48,9 +48,9 @@ class APITest extends TestCase
 	}
 
 
-	public function testGetTspToken(): void
-	{
-		$this->assertIsString($this->API->getTspToken());
-	}
+	// TODO: tests for...
+	// getCurrentlySelectedVehicle()
+	// setCurrentlySelectedVehicle()
+
 
 }
