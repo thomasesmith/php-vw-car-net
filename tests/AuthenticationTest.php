@@ -90,7 +90,6 @@ class AuthenticationTest extends TestCase
         $this->assertIsString($authenticationPathStrings['accessToken']);
         $this->assertIsString($authenticationPathStrings['idToken']);
         $this->assertIsString($authenticationPathStrings['refreshToken']);
-        $this->assertIsString($authenticationPathStrings['state']);
         $this->assertIsString($authenticationPathStrings['codeChallenge']);
         $this->assertIsString($authenticationPathStrings['codeVerifier']);
         $this->assertIsString($authenticationPathStrings['code']);

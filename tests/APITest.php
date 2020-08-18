@@ -30,27 +30,25 @@ class APITest extends TestCase
     }
 
 
-	public function testGetUserId(): void
-	{
-		$this->assertIsString($this->API->getUserId());
-	}
+    public function testGetUserId(): void
+    {
+        $this->assertIsString($this->API->getUserId());
+    }
 
 
-	public function testGetVehicleId(): void
-	{
-		$this->assertIsString($this->API->getVehicleId());
-	}
+    public function testGetVehicleId(): void
+    {
+        $this->assertIsString($this->API->getVehicleId());
+    }
 
 
-	public function testGetAccountNumber(): void
-	{
-		$this->assertIsString($this->API->getAccountNumber());
-	}
+    public function testGetAccountNumber(): void
+    {
+        $this->assertIsString($this->API->getAccountNumber());
+    }
 
+    // TODO: test for...
 
-	// TODO: tests for...
-	// getCurrentlySelectedVehicle()
-	// setCurrentlySelectedVehicle()
-
-
+    // getCurrentlySelectedVehicle()
+    // setCurrentlySelectedVehicle()
 }

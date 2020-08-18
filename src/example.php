@@ -69,8 +69,8 @@ $API->adjustClimateControl(true, 72)
 
 $API->toggleDefroster(true)
 
-$API->toggleCharge()
+$API->toggleCharge(true)
 
-$API->toggleLock()
+$API->toggleLock(true)
 
 */
