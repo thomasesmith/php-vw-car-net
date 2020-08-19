@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 require_once 'vendor/autoload.php';
+
 use PHPUnit\Framework\TestCase;
 
 require_once '_config.php';
 
 require_once 'src/classes/thomasesmith/VWCarNet/Authentication.php';
+
 use thomasesmith\VWCarNet\Authentication;
+
 
 class AuthenticationTest extends TestCase
 {
@@ -17,6 +20,10 @@ class AuthenticationTest extends TestCase
 
     public function setUp(): void
     {
+        if (!KnownValidCarNetEmailAddress || !KnownValidCarNetPassword || !KnownValidCarNetPIN) {
+            $this->fail('tests/_config.php must contain valid Car-Net credentials.');
+        }
+        
         $this->Authentication = new Authentication();
         $this->AuthenticationFromFile = false;
 
@@ -64,7 +71,7 @@ class AuthenticationTest extends TestCase
     {
         $this->expectException(Exception::class);
 
-        $this->Authentication->authenticate('invalid111111@emailaddress.com', 'd');
+        $this->Authentication->authenticate('invalid111111@emailaddress.com', 'invalidpassword');
     }
 
 
@@ -88,16 +95,18 @@ class AuthenticationTest extends TestCase
 
         $this->assertIsArray($authenticationPathStrings);
         $this->assertIsString($authenticationPathStrings['accessToken']);
+        $this->assertIsInt($authenticationPathStrings['accessTokenExpires']);
         $this->assertIsString($authenticationPathStrings['idToken']);
+        $this->assertIsInt($authenticationPathStrings['idTokenExpires']);
         $this->assertIsString($authenticationPathStrings['refreshToken']);
-        $this->assertIsString($authenticationPathStrings['codeChallenge']);
+        $this->assertIsInt($authenticationPathStrings['refreshTokenExpires']);
         $this->assertIsString($authenticationPathStrings['codeVerifier']);
-        $this->assertIsString($authenticationPathStrings['code']);
+        $this->assertIsString($authenticationPathStrings['emailAddress']);
 
         try {
             $acessToken = $this->Authentication->getAccessToken();
         } catch (\Exception $e) {
-            $this->fail('An unexpected exception was thrown during getAccessToken() test: ' . $e->getMessage());
+            $this->fail('An unexpected exception was thrown during test of getAccessToken(): ' . $e->getMessage());
         }
         
         $this->assertIsString($acessToken);
@@ -105,7 +114,7 @@ class AuthenticationTest extends TestCase
         try {
             $idToken = $this->Authentication->getIdToken();
         } catch (\Exception $e) {
-            $this->fail('An unexpected exception was thrown during getIdToken() test: ' . $e->getMessage());
+            $this->fail('An unexpected exception was thrown during test of getIdToken(): ' . $e->getMessage());
         }
         
         $this->assertIsString($idToken);

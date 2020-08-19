@@ -9,16 +9,23 @@ require_once '_config.php';
 
 require_once 'src/classes/thomasesmith/VWCarNet/Authentication.php';
 require_once 'src/classes/thomasesmith/VWCarNet/API.php';
+
 use thomasesmith\VWCarNet\Authentication;
 use thomasesmith\VWCarNet\API;
+
 
 class APITest extends TestCase
 {
     // Warning: The API and Authentication object instances aren't mocks.
-    // Some of these tests will result in real requests to the Car-Net servers. 
+    // In order to test effectively, some ofthese tests will result in 
+    // real requests to the VW / Car-Net hosts.
 
     public function setUp(): void
     {
+        if (!KnownValidCarNetEmailAddress || !KnownValidCarNetPassword || !KnownValidCarNetPIN) {
+            $this->fail('_config.php must contain valid Car-Net credentials.');
+        }
+
         $this->Authentication = new Authentication();
         $this->Authentication->authenticate(KnownValidCarNetEmailAddress, KnownValidCarNetPassword);
         $this->AuthenticationFromFile = false;

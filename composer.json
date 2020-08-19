@@ -1,6 +1,22 @@
-{
+{ 
+    "name": "thomasesmith/php-vw-car-net",
+    "description": "A PHP client for the VW Car-Net API",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Smith",
+            "email": "tom@itsmetomsmith.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"thomasesmith\\VWCarNet\\": "src/classes/thomasesmith/VWCarNet/"}
+    }, 
     "require": {
-        "guzzlehttp/guzzle": "^7.0"
+        "guzzlehttp/guzzle": "^7.0",
+        "php": "^7.0",
+        "ext-SimpleXML": "*",
+        "ext-JSON": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9"
