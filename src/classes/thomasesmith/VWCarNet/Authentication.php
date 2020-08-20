@@ -335,7 +335,7 @@ class Authentication {
         $this->refreshToken = $responseJson['refresh_token'];
         $this->refreshTokenExpires = time() + $responseJson['refresh_expires_in'];
 
-        if ($this->saveCallback)
+        if (is_callable($this->saveCallback))
             call_user_func($this->saveCallback, $this); 
     }
 
@@ -380,7 +380,7 @@ class Authentication {
         $this->refreshToken = $responseJson['refresh_token'];
         $this->refreshTokenExpires = time() + $responseJson['refresh_expires_in'];
 
-        if ($this->saveCallback)
+        if (is_callable($this->saveCallback))
             call_user_func($this->saveCallback, $this); 
     }
 

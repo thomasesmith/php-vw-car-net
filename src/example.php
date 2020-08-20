@@ -7,38 +7,52 @@ require_once __DIR__ . '/classes/thomasesmith/VWCarNet/API.php';
 
 use thomasesmith\VWCarNet;
 
-$Auth = new VWCarNet\Authentication();	
 
-$authFilename = __DIR__ . '/AuthenticationObjectStore';
 
-// Check to see if you have any tokens saved (in whatever manner you saved them)... 
-if (file_exists($authFilename)) {
+// If you want to, use the setSaveCallback() method to set a callback to execute whenever 
+// the Authentication instance gets new or refreshed tokens. It's a good place to put the code that 
+// will save your token values somewhere persistenly. In this example file, I will simply serialize 
+// the $Auth object and save it to a flat file, then reload it, but you can do anything you wish.
+
+$authObjectFilename = __DIR__ . '/AuthenticationObjectStore';
+
+$tokenChangeCallback = function($Auth) use ($authObjectFilename) {
+    file_put_contents($authObjectFilename, serialize($Auth));
+    // Or, you can use $Auth->getAllAuthenticationTokens() and save the values however you prefer 
+};
+
+
+// To set up a connection to the API, first check to see if you have any tokens saved. 
+// In this example, I will look for the file thats written during the save callback.
+if (file_exists($authObjectFilename)) {
 
     // Load your existing tokens in whatever manner you want. In this example, I just serialized
-    // the $Auth object to a flat file, then I re-load it here...
-    $Auth = unserialize(file_get_contents($authFilename));
+    // the Authenticate instance to a flat file, so I will unserialize it here.
 
-    // or you can use $Auth->setAuthenticationTokens() and pass in an array of values that you have saved.
+    $Auth = unserialize(file_get_contents($authObjectFilename)); 
+
+    // Alternatively, you could create a new Authentication instance, and use its setAuthenticationTokens()
+    // method to set the tokens to whatever they were at the ened of your last execution, from 
+    // whatever persistent storage manner you used to store them.
+
+    // Then be sure to make sure this instance's save callback function is set
+    $Auth->setSaveCallback($tokenChangeCallback);    
 
 } else {
-    // If you don't have any tokens saved, perform an authenticate() with your Car-Net credentials
+    // If you don't have any tokens saved anywhere, create a new instance and call authenticate() 
+    // using your Car-Net credentials
 
-    // It's optional, but if you want to use the setSaveCallback() method to set a callback 
-    // to execute whenever the $Auth object gets new tokens or refreshed tokens, do so here before the 
-    // authenticate() method. It's a good place to put the code that will save your token values 
-    // somewhere persistenly. In this example, I just serialize the $Auth object and save it to a flat
-    // file.
-
-    $Auth->setSaveCallback(
-        function($Auth) use ($authFilename) {
-            file_put_contents($authFilename, serialize($Auth));
-            // or you can use $Auth->getAllAuthenticationTokens() and save the values however you prefer. 
-        }
-    );    
-
-    // Now, actually do the authentication...
     try {
+        $Auth = new VWCarNet\Authentication();  
+        
+        // The order here is important. This instance's save callback function must be set 
+        // before authenticate() is called, otherwise the callback function won't execute and your
+        // new tokens will be lost at the end of this execution 
+        $Auth->setSaveCallback($tokenChangeCallback);
+
+        // Now authenticate
         $Auth->authenticate("CAR NET EMAIL ADDRESS", "CAR NET PASSWORD");
+
     } catch (Exception $e) {
         // Any issue logging in will throw an exception here.
         print $e->getMessage(); 
