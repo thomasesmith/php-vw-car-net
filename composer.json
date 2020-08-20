@@ -13,7 +13,6 @@
         "psr-4": {"thomasesmith\\VWCarNet\\": "src/"}
     }, 
     "require": {
-        "php": "^7.0",
         "guzzlehttp/guzzle": "^7.0",
         "ext-SimpleXML": "*"
     },
