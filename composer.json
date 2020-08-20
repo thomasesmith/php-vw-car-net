@@ -9,6 +9,7 @@
             "email": "tom@itsmetomsmith.com"
         }
     ],
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {"thomasesmith\\VWCarNet\\": "src/"}
     }, 
