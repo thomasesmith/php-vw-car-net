@@ -1,5 +1,4 @@
-src/AuthenticationObjStore
+AuthenticationObjStore
 vendor/
 tests/_config.php
-index.php
 .DS_Store
