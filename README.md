@@ -1,4 +1,4 @@
-# A VW Car-Net API Client for PHP
+# An unofficial PHP Wrapper for the VW Car-Net API
 
 ## Installing 
 It is recommended that you install this with [Composer](https://getcomposer.org/).
@@ -6,16 +6,17 @@ It is recommended that you install this with [Composer](https://getcomposer.org/
 composer require thomasesmith/php-vw-car-net
 ```
 ## Quick Start
-##### Code like...
 
 ```php
-$Auth = new \thomasesmith\VWCarNet\Authentication();  
-$Auth->authenticate("YOUR CAR NET EMAIL ADDRESS", "YOUR CAR NET PASSWORD");
-$cn = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
+use thomasesmith\VWCarNet;
 
-var_dump($cn->getVehicleStatus());
+$Auth = new VWCarNet\Authentication();  
+$Auth->authenticate("YOUR CAR NET EMAIL ADDRESS", "YOUR CAR NET PASSWORD");
+$CN = new VWCarNet\API($Auth, "YOUR CAR NET PIN");
+
+var_dump($CN->getVehicleStatus());
 ```
-##### will return...
+#### ...will return...
 
 ```php
 array(10) {
@@ -114,40 +115,40 @@ array(10) {
 ```
 ## Methods Available in the `API` Object
 
-##### `getVehiclesAndEnrollmentStatus()`: `array`
+#### `getVehiclesAndEnrollmentStatus()`: `array`
 This will return an associative array of information about your Car-Net account, but most importantly will contain a `vehicleEnrollmentStatus` array, containing an array about each of the vehicles associated with your account including their `vehicleId` values.
 
-##### `setCurrentlySelectedVehicle(string $vehicleId)`: `array`
+#### `setCurrentlySelectedVehicle(string $vehicleId)`: `array`
 This method takes a `vehicleId` as its one parameter and sets it as your "current vehicle," that is, the vehicle you will be commanding/querying with the subsequent method calls you make. It will use this vehicle, until of course it is set to a different value.
 >If you only have one vehicle associated with your Car-Net account, you don't have to set this at all, because your currently selected vehicle will default to the first one listed in the `getVehiclesAndEnrollmentStatus()` vehicles list.
 
-##### `getVehicleStatus()`: `array`
+#### `getVehicleStatus()`: `array`
 This returns an associative array containing all the current details of your car and its  various statuses, such as door lock status, battery status, window status, cruise range, mileage, etc.
-> If the time `timestamp` is old, try running `requestRepollOfVehicleStatus()`
+> If the time in `timestamp` is getting old, try running `requestRepollOfVehicleStatus()` first.
 
-##### `requestRepollOfVehicleStatus()`: `void`
+#### `requestRepollOfVehicleStatus()`: `void`
 While we're talking about vehicle status, sometimes the information returned by the car can get a little stale, so call this method to force the Car-Net api to re-poll the car for an updated status. 
 > The status takes about 25 seconds to actually update after making this method call. So don't call `getVehicleStatus()` immediately after calling this method, without waiting a bit. 
 
-##### `getBatteryStatus()`: `array`
+#### `getBatteryStatus()`: `array`
 ***EV ONLY*** This is just a shortcut that returns the `powerStatus` array that `getVehicleStatus()` includes as part of its output.
 
-##### `setUnpluggedClimateControl(bool $enabled)`: `void`
+#### `setUnpluggedClimateControl(bool $enabled)`: `void`
 ***EV ONLY*** Passing in a boolean `false` will disable your car from turning its climate system on when it is not plugged in. A boolean `true` will set it to allow the car to use the climate system when unplugged. This method returns nothing. 
 > This setting stays persistent in the vehicle, you don't have to set it every time you execute your code.
 
-##### `setClimateControl(bool $enabled [, int $temperatureDegrees])`: `void`
+#### `setClimateControl(bool $enabled [, int $temperatureDegrees])`: `void`
 Passing in a boolean `false` as the first parameter will stop your climate system. A boolean `true` will start it, and will use the optional second int parameter as the target temperature. If no int is passed in, the cars default is used. This method returns nothing.
 >If you car is an EV, your car must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
 
-##### `setDefroster(bool $enabled)`: `void`
+#### `setDefroster(bool $enabled)`: `void`
 Passing in a boolean `true` will start your vehicles defroster. A boolean `false` will stop it. This method returns nothing.
 >If you car is an EV, your car must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
 
-##### `setCharge(bool $enabled)`: `void`
+#### `setCharge(bool $enabled)`: `void`
 ***EV ONLY*** Passing in a boolean `true` starts your EVs charger. A boolean `false` will stop it. This method returns nothing.
 
-##### `setLock(bool $enabled)`: `void`
+#### `setLock(bool $enabled)`: `void`
 Passing in a boolean `true` will lock your car. A boolean `false` will unlock it. This method returns nothing.
 
 ***
@@ -200,7 +201,7 @@ if (file_exists($authObjectFilename)) {
 
 // Now create an instance of the API object and pass in the Auth instance 
 // as the first parameter, and your Car-Net PIN as the second, and you're set
-$cn = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
+$CN = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
 
 // ...
 ```
@@ -249,7 +250,7 @@ if ($loadedTokensArray) {
 
 // Now create an instance of the API object and pass in the Auth instance 
 // as the first parameter, and your Car-Net PIN as the second, and you're set
-$cn = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
+$CN = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
 
 // ...
 ```
