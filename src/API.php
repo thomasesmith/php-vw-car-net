@@ -174,7 +174,7 @@ class API {
     }
 
 
-    public function adjustClimateControl(bool $active = false, int $targetTemperature = 75): void
+    public function setClimateControl(bool $active, int $targetTemperature = 75): void
     {
         $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/status/climate';
 
@@ -192,7 +192,7 @@ class API {
     }
 
 
-    public function toggleDefroster(bool $on): void
+    public function setDefroster(bool $on): void
     {
         $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/status/defrost';
 
@@ -208,7 +208,7 @@ class API {
     }
 
 
-    public function toggleCharge(bool $charge): void
+    public function setCharge(bool $charge): void
     {
         $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/status/charging';
 
@@ -225,7 +225,7 @@ class API {
     }
 
 
-    public function toggleLock(bool $lock): void
+    public function setLock(bool $lock): void
     {
         $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/status/exterior/doors';
 
@@ -233,6 +233,23 @@ class API {
             [
                 'json' => [
                     'lock' => $lock,
+                    'tsp_token' => $this->getTspToken(),
+                    'email' => $this->Authentication->getEmailAddress(),
+                    'vw_id' => $this->vwId
+                ]
+            ]
+        );
+    }
+
+
+    public function setUnpluggedClimateControl(bool $enabled): void
+    {
+        $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/settings/unplugged_climate_control';
+
+        $res = $this->client->request('PUT', $url, 
+            [
+                'json' => [
+                    'enabled' => $enabled,
                     'tsp_token' => $this->getTspToken(),
                     'email' => $this->Authentication->getEmailAddress(),
                     'vw_id' => $this->vwId
