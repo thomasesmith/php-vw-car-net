@@ -118,43 +118,56 @@ array(10) {
 #### `getVehiclesAndEnrollmentStatus()`: `array`
 This will return an associative array of information about your Car-Net account, but most importantly will contain a `vehicleEnrollmentStatus` array, containing an array about each of the vehicles associated with your account including their `vehicleId` values.
 
+#### `getAllVehicles()`: `array`
+This is just a shortcut to the `vehicleEnrollmentStatus` values of the response above. In case you don't want or need the rest of that response.
+
 #### `setCurrentlySelectedVehicle(string $vehicleId)`: `array`
 This method takes a `vehicleId` as its one parameter and sets it as your "current vehicle," that is, the vehicle you will be commanding/querying with the subsequent method calls you make. It will use this vehicle, until of course it is set to a different value.
 >If you only have one vehicle associated with your Car-Net account, you don't have to set this at all, because your currently selected vehicle will default to the first one listed in the `getVehiclesAndEnrollmentStatus()` vehicles list.
 
+#### `getVehicleId()`: `string`
+This returns a string containing the vehicle id of the currently selected vehicle.
+
 #### `getVehicleStatus()`: `array`
-This returns an associative array containing all the current details of your car and its  various statuses, such as door lock status, battery status, window status, cruise range, mileage, etc.
+This returns an associative array containing all the current details of the currently selected vehicle and its various statuses, such as door lock status, battery status, window states, cruise range, odometer mileage, etc.
 > If the time in `timestamp` is getting old, try running `requestRepollOfVehicleStatus()` first.
 
 #### `requestRepollOfVehicleStatus()`: `void`
-While we're talking about vehicle status, sometimes the information returned by the car can get a little stale, so call this method to force the Car-Net api to re-poll the car for an updated status. 
-> The status takes about 25 seconds to actually update after making this method call. So don't call `getVehicleStatus()` immediately after calling this method, without waiting a bit. 
+While we're talking about vehicle status, sometimes the information returned by the car can get a little stale, so call this method to force the Car-Net API to re-poll the car for an updated status of your currently selected vehicle. 
+> The status takes about 25 seconds to actually update after making this method call. So don't call `getVehicleStatus()` immediately after calling this method, without first waiting a bit. 
 
 #### `getBatteryStatus()`: `array`
 ***EV ONLY*** This is just a shortcut that returns the `powerStatus` array that `getVehicleStatus()` includes as part of its output.
 
 #### `setUnpluggedClimateControl(bool $enabled)`: `void`
-***EV ONLY*** Passing in a boolean `false` will disable your car from turning its climate system on when it is not plugged in. A boolean `true` will set it to allow the car to use the climate system when unplugged. This method returns nothing. 
+***EV ONLY*** Passing in a boolean `false` will disable your currently selected vehicle from turning its climate system on when it is not plugged in. A boolean `true` will set it to allow the car to use the climate system when unplugged. This method returns nothing. 
 > This setting stays persistent in the vehicle, you don't have to set it every time you execute your code.
 
 #### `setClimateControl(bool $enabled [, int $temperatureDegrees])`: `void`
-Passing in a boolean `false` as the first parameter will stop your climate system. A boolean `true` will start it, and will use the optional second int parameter as the target temperature. If no int is passed in, the cars default is used. This method returns nothing.
->If you car is an EV, your car must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
+Passing in a boolean `false` as the first parameter will turn off the climate system in the currently selected vehicle. A boolean `true` will turn it one. An additional ***EV ONLY*** feature: use the optional second parameter to set the target temperature you would like the vehicle to get to. If no int is passed in, the cars default is used. This method returns nothing.
+>If the currently selected vehicle is an EV, it must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
 
 #### `setDefroster(bool $enabled)`: `void`
-Passing in a boolean `true` will start your vehicles defroster. A boolean `false` will stop it. This method returns nothing.
->If you car is an EV, your car must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
+Passing in a boolean `true` will start your currently selected vehicles defroster. A boolean `false` will stop it. This method returns nothing.
+>If the currently selected vehicle is an EV, your car must either be plugged in or you have to make sure `setUnpluggedClimateControl()` is set to `true`. 
 
 #### `setCharge(bool $enabled)`: `void`
-***EV ONLY*** Passing in a boolean `true` starts your EVs charger. A boolean `false` will stop it. This method returns nothing.
+***EV ONLY*** Passing in a boolean `true` starts your currently selected vehicles battery charger. A boolean `false` will stop it. This method returns nothing.
 
 #### `setLock(bool $enabled)`: `void`
-Passing in a boolean `true` will lock your car. A boolean `false` will unlock it. This method returns nothing.
+Passing in a boolean `true` will lock the doors of your currently selected vehicle. A boolean `false` will unlock them. This method returns nothing.
+
+#### `getVehicleHealthReport()`: `array`
+This returns an associative array containing your currently selected vehicles health report. 
+
+#### `requestRepollOfVehicleHealthReport()`: `void`
+Like the vehicle status can, the health report can get a little stale, so call this method to force the Car-Net API to re-poll the car for an updated health report of the currently selected vehicle. This method returns nothing. 
+> The health report takes about 25 seconds to actually update after making this method call. So don't call `getVehicleHealthReport()` immediately after calling this method, without first waiting a bit. 
 
 ***
 ## It's Important to Store Your Tokens! 
 
-The Authentication object will do all the work to getting and holding on to the access tokens it will need to use the API–and will refresh them for you automatically if they expire–but it will only hold on to them for the duration of your scripts execution unless you store them somewhere persistently between those executions. Not doing so will force your app to re-authenticate each time it runs, and that will make your app slow. 
+The Authentication object will do all the work to getting and holding on to the access tokens it will need to use the API–and will refresh them for you automatically if they expire–but it will only hold on to them for the duration of your scripts execution unless you store them somewhere persistently between those executions. Not doing so will force your app to re-authenticate each time it runs, and that will make your app very slow. 
 
 The Authentication class has three methods that can help with this: `setSaveCallback()` `getAllAuthenticationTokens()` and  `setAuthenticationTokens()`
 
@@ -234,7 +247,7 @@ if ($loadedTokensArray) {
 
 } else {
 
-    // If you don't, get new ones and be sure to user setSaveCallback() so store them.
+    // If you don't, get new ones and be sure to use setSaveCallback() so store them.
     try {
 
         $Auth = new \thomasesmith\VWCarNet\Authentication();  

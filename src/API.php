@@ -27,6 +27,7 @@ class API {
     private $vehiclesAndEnrollmentStatus; 
     private $currentlySelectedVehicleStatus;
     private $currentlySelectedVehicleClimateStatus;
+    private $currentlySelectedVehicleHealthReport;
 
 
     public function __construct(Authentication $Authentication, $pin)
@@ -41,7 +42,6 @@ class API {
             'base_uri' => self::API_HOST,
             'headers' => [
                 'content-type' => 'application/json;charset=UTF-8',
-                'authorization' => 'Bearer ' . $this->Authentication->getAccessToken(),
                 'x-user-id' => $this->userId,
                 'user-agent' => self::APP_USER_AGENT_SPOOF,
                 'x-user-agent' => self::APP_USER_AGENT_SPOOF,
@@ -86,8 +86,14 @@ class API {
             $count++;
         }
 
-        if (isset($index))
+        if (isset($index)) {
             $this->currentlySelectedVehicle = $this->getVehiclesAndEnrollmentStatus()['vehicleEnrollmentStatus'][$index];
+
+            // Unset any values that might have been set while working with the previous vehicle
+            $this->currentlySelectedVehicleStatus = [];
+            $this->currentlySelectedVehicleClimateStatus = [];
+            $this->currentlySelectedVehicleHealthReport = [];
+        }
 
         throw new \Exception('That vehicle id was not found in your vehicles list.');
     }
@@ -103,31 +109,25 @@ class API {
     }
 
 
+    public function getVehicleHealthReport($forceRefresh = false): array
+    {
+        if ($this->currentlySelectedVehicleHealthReport && !$forceRefresh)
+            return $this->currentlySelectedVehicleHealthReport;
+
+        $this->fetchVehicleHealthReport(); 
+        return $this->currentlySelectedVehicleHealthReport;
+    }
+
+
     public function getAllVehicles(): array
     {
         return $this->getVehiclesAndEnrollmentStatus()['vehicleEnrollmentStatus'];
     }
 
 
-    public function getUserId(): string
-    {
-        if ($this->userId)
-            return $this->userId;
-
-        $this->fetchVehiclesAndEnrollmentStatus();
-        return $this->userId;
-    }
-
-
     public function getVehicleId(): string
     {
         return $this->getCurrentlySelectedVehicle()['vehicleId'];
-    }
-
-
-    public function getAccountNumber(): string
-    {
-        return $this->getCurrentlySelectedVehicle()['rolesAndRights']['tspAccountNum'];
     }
 
 
@@ -164,6 +164,28 @@ class API {
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
+                'json' => [
+                    'tsp_token' => $this->getTspToken(),
+                    'email' => $this->Authentication->getEmailAddress(),
+                    'vw_id' => $this->vwId
+                ]
+            ]
+        );
+    }
+
+
+    public function requestRepollOfVehicleHealthReport(): void
+    {
+        $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/health/fresh';
+
+        $res = $this->client->request('POST', $url, 
+            [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'tsp_token' => $this->getTspToken(),
                     'email' => $this->Authentication->getEmailAddress(),
@@ -180,6 +202,9 @@ class API {
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'active' => $active,
                     'target_temperature' => $targetTemperature,
@@ -198,13 +223,17 @@ class API {
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
-                'active' => $on,
-                'tsp_token' => $this->getTspToken(),
-                'email' => $this->Authentication->getEmailAddress(),
-                'vw_id' => $this->vwId
+                    'active' => $on,
+                    'tsp_token' => $this->getTspToken(),
+                    'email' => $this->Authentication->getEmailAddress(),
+                    'vw_id' => $this->vwId
+                ]
             ]
-        ]);
+        );
     }
 
 
@@ -214,6 +243,9 @@ class API {
 
         $res = $this->client->request('PATCH', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'active' => $charge,
                     'tsp_token' => $this->getTspToken(),
@@ -231,6 +263,9 @@ class API {
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'lock' => $lock,
                     'tsp_token' => $this->getTspToken(),
@@ -248,6 +283,9 @@ class API {
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'enabled' => $enabled,
                     'tsp_token' => $this->getTspToken(),
@@ -285,6 +323,22 @@ class API {
 
     // Private Methods ////////////////////
 
+    private function getUserId(): string
+    {
+        if ($this->userId)
+            return $this->userId;
+
+        $this->fetchVehiclesAndEnrollmentStatus();
+        return $this->userId;
+    }
+
+
+    private function getAccountNumber(): string
+    {
+        return $this->getCurrentlySelectedVehicle()['rolesAndRights']['tspAccountNum'];
+    }
+
+
     private function getTspToken(): string
     {
         // If the tsp token is not yet set, or has expired, refetch it before returning...
@@ -302,6 +356,9 @@ class API {
         try {
             $res =	$this->client->request('POST', $url, 
                 [
+                    'headers' => [
+                        'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                    ],
                     'json' => [
                         'accountNumber' => $this->getCurrentlySelectedVehicle()['rolesAndRights']['tspAccountNum'],
                         'idToken' => $this->Authentication->getIdToken(),
@@ -331,7 +388,12 @@ class API {
     {
         $url = '/account/v1/enrollment/status?idToken=' . $this->Authentication->getIdToken();
 
-        $res = $this->client->request('GET', $url);
+        $res = $this->client->request('GET', $url, [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ]
+            ]
+        );
 
         $responseJson = json_decode(strval($res->getBody()), true);
 
@@ -345,7 +407,12 @@ class API {
     {
         $url = '/rvs/v1/vehicle/' . $this->getVehicleId();
 
-        $res = $this->client->request('GET', $url);
+        $res = $this->client->request('GET', $url, [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ]
+            ]
+        );
 
         $responseJson = json_decode(strval($res->getBody()), true);
 
@@ -374,12 +441,32 @@ class API {
     }
 
 
+    private function fetchVehicleHealthReport(): void
+    {
+        $url = '/vhs/v2/vehicle/' . $this->getVehicleId();
+
+        $res = $this->client->request('GET', $url, [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ]
+            ]
+        );
+
+        $responseJson = json_decode(strval($res->getBody()), true);
+
+        $this->currentlySelectedVehicleHealthReport = $responseJson['data'];
+    }
+
+
     private function fetchCurrentlySelectedVehicleClimateStatus(): void 
     {
         $url = '/mps/v1/vehicles/' . $this->getAccountNumber() . '/status/climate/details';
 
         $res = $this->client->request('PUT', $url, 
             [
+                'headers' => [
+                    'authorization' => 'Bearer ' . $this->Authentication->getAccessToken()
+                ],
                 'json' => [
                     'tsp_token' => $this->getTspToken(),
                     'email' => $this->Authentication->getEmailAddress(),
