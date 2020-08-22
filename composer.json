@@ -1,6 +1,6 @@
 { 
     "name": "thomasesmith/php-vw-car-net",
-    "description": "A PHP client for the VW Car-Net API",
+    "description": "An unofficial PHP wrapper for the VW Car-Net API",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -9,7 +9,6 @@
             "email": "tom@itsmetomsmith.com"
         }
     ],
-    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {"thomasesmith\\VWCarNet\\": "src/"}
     }, 
