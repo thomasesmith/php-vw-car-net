@@ -38,7 +38,6 @@ class API {
         // Set up a new Guzzle client with some defaults
         $this->client = new GuzzleHttp\Client(
             [
-            'version' => 2, 
             'base_uri' => self::API_HOST,
             'headers' => [
                 'content-type' => 'application/json;charset=UTF-8',

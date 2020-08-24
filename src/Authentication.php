@@ -43,7 +43,7 @@ class Authentication {
 
     public function __construct()
     {
-        $this->client = new GuzzleHttp\Client(['version' => 2]);
+        $this->client = new GuzzleHttp\Client();
         $this->clientCookieJar = new GuzzleHttp\Cookie\CookieJar();
     }
 
@@ -65,7 +65,7 @@ class Authentication {
 
     public function __wakeup()
     {
-        $this->client = new GuzzleHttp\Client(['version' => 2]);
+        $this->client = new GuzzleHttp\Client();
         $this->clientCookieJar = new GuzzleHttp\Cookie\CookieJar();
     }
 
@@ -193,7 +193,7 @@ class Authentication {
 
         $url = self::API_HOST . '/oidc/v1/authorize?redirect_uri=car-net%3A%2F%2F%2Foauth-callback&scope=openid&prompt=login&code_challenge='.$this->codeChallenge.'&state=' . $this->state . '&response_type=code&client_id=' . self::APP_CLIENT_ID_IOS;
 
-        $res = $this->client->request('GET', $url, ['version' => 2, 'cookies' => $this->clientCookieJar]);
+        $res = $this->client->request('GET', $url, ['cookies' => $this->clientCookieJar]);
 
         // Scrape some values from the log in page for use in subsequent requests
         $xml = new SimpleXMLElement(strval($res->getBody()));

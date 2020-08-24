@@ -223,7 +223,7 @@ $CN = new \thomasesmith\VWCarNet\API($Auth, "YOUR CAR NET PIN");
 If you want to store tokens persistently in some other manner, that might look more like this pseudo-code: 
 
 ```php
-$tokenChangeCallback = function($Auth) use ($authObjectFilename) {
+$tokenChangeCallback = function($Auth) {
 
     $tokensArray = $Auth->getAllAuthenticationTokens();
 
