@@ -6,9 +6,13 @@ require_once 'vendor/autoload.php';
 
 use PHPUnit\Framework\TestCase;
 
-require_once '_config.php';
+if (file_exists(__DIR__ . '/_config.php')) {
+    require_once __DIR__ . '/_config.php';
+} else {
+    die('Please enter the Car-Net account details that you\'d like to test with in to the tests/_config.example.php file and rename it to tests/_config.php' . PHP_EOL);
+}
 
-require_once 'src/classes/thomasesmith/VWCarNet/Authentication.php';
+require_once __DIR__ . '/../src/Authentication.php';
 
 use thomasesmith\VWCarNet\Authentication;
 
@@ -27,35 +31,27 @@ class AuthenticationTest extends TestCase
         $this->Authentication = new Authentication();
         $this->AuthenticationFromFile = false;
 
-        // $this->Authentication = unserialize(file_get_contents(__DIR__ . '/../src/AuthenticationObjStore'));
-        // $this->AuthenticationFromFile = true;
     }
 
 
     public function testGetEmailAddressBeforeSet()
     {
-        if (!$this->AuthenticationFromFile) {
-            $this->expectException(Exception::class);
-            $this->Authentication->getEmailAddress();
-        }
+        $this->expectException(Exception::class);
+        $this->Authentication->getEmailAddress();
     }
 
 
     public function testGetAccessTokenBeforeSet()
     {
-        if (!$this->AuthenticationFromFile) {
-            $this->expectException(Exception::class);
-            $this->Authentication->getAccessToken();
-        }
+        $this->expectException(Exception::class);
+        $this->Authentication->getAccessToken();
     }
 
 
     public function testGetIdTokenBeforeSet()
     {
-        if (!$this->AuthenticationFromFile) {
-            $this->expectException(Exception::class);
-            $this->Authentication->getIdToken();
-        }
+        $this->expectException(Exception::class);
+        $this->Authentication->getIdToken();
     }
 
 
@@ -104,12 +100,12 @@ class AuthenticationTest extends TestCase
         $this->assertIsString($authenticationPathStrings['emailAddress']);
 
         try {
-            $acessToken = $this->Authentication->getAccessToken();
+            $accessToken = $this->Authentication->getAccessToken();
         } catch (\Exception $e) {
             $this->fail('An unexpected exception was thrown during test of getAccessToken(): ' . $e->getMessage());
         }
         
-        $this->assertIsString($acessToken);
+        $this->assertIsString($accessToken);
 
         try {
             $idToken = $this->Authentication->getIdToken();
@@ -118,6 +114,16 @@ class AuthenticationTest extends TestCase
         }
         
         $this->assertIsString($idToken);
-    }
 
+        $this->assertEquals($authenticationPathStrings['accessToken'], $accessToken);
+        $this->assertEquals($authenticationPathStrings['idToken'], $idToken);
+    }  
+
+
+    public function testGenerateMockUuid()
+    {
+        $regexPattern = '/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/m';
+        
+        $this->assertMatchesRegularExpression($regexPattern, $this->Authentication::generateMockUuid());
+    }
 }

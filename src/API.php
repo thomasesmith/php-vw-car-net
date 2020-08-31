@@ -98,9 +98,9 @@ class API {
     }
 
 
-    public function getVehicleStatus($forceRefresh = false): array
+    public function getVehicleStatus($forceRefetch = false): array
     {
-        if ($this->currentlySelectedVehicleStatus && !$forceRefresh)
+        if ($this->currentlySelectedVehicleStatus && !$forceRefetch)
             return $this->currentlySelectedVehicleStatus;
 
         $this->fetchVehicleStatus(); 
@@ -108,9 +108,9 @@ class API {
     }
 
 
-    public function getVehicleHealthReport($forceRefresh = false): array
+    public function getVehicleHealthReport($forceRefetch = false): array
     {
-        if ($this->currentlySelectedVehicleHealthReport && !$forceRefresh)
+        if ($this->currentlySelectedVehicleHealthReport && !$forceRefetch)
             return $this->currentlySelectedVehicleHealthReport;
 
         $this->fetchVehicleHealthReport(); 
@@ -173,6 +173,10 @@ class API {
                 ]
             ]
         );
+
+        // Un set the vehicle status so that that the next call to
+        // getVehicleStatus() forces a re-fetch
+        $this->currentlySelectedVehicleStatus = [];
     }
 
 
@@ -192,6 +196,10 @@ class API {
                 ]
             ]
         );
+
+        // Un set the vehicle health report property so that that the next call to
+        // getVehicleHealthReport() forces a re-fetch
+        $this->currentlySelectedVehicleHealthReport = [];
     }
 
 
@@ -299,22 +307,29 @@ class API {
 
     // Static Public Methods ////////////////////////////////
 
-    static public function kilometersToMiles(string $km): int
+    static public function kilometersToMiles(int $km, int $precision = 0): int
     {
-        return intval(ceil($km / 1.609));
+        return intval(ceil($km / 1.609344));
     }
 
 
-    static public function fahrenheitToCelsius(string $f): int
+    static public function fahrenheitToCelsius(int $f, int $precision = 0): int
     {
         return intval(ceil(($f - 32) * 5/9));
     }
 
 
-    static public function camelCaseToWords(string $string): string
+    static public function codeCaseToWords(string $string): string
     {
-        $arr = preg_split('/(?=[A-Z])/', $string);
-        $spaced = trim(implode(' ', $arr));
+        if (strpos($string, '_') === false) {
+            // if there's no underscores, assume input is camel case 
+            $arr = preg_split('/(?=[A-Z])/', $string);
+            $spaced = trim(implode(' ', $arr));
+        } else {
+            // other process as if input is snake case 
+            $spaced = str_replace('_', ' ', $string);
+        }
+
         return ucfirst(strtolower($spaced));
     }
 

@@ -160,7 +160,7 @@ class Authentication {
 
 
 
-    // Static Public Methods 
+    // Static Public Helper Methods 
 
     static public function generateMockUuid(): string
     {
