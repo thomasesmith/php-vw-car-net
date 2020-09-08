@@ -9,6 +9,9 @@ It is recommended that you install this with [Composer](https://getcomposer.org/
 ```bash
 composer require thomasesmith/php-vw-car-net
 ```
+## Regional Support
+So far, this package has only been officially tested with a ***U.S.A. VW Car-Net account***. It is unknown how this will work with Car-Net accounts outside of the U.S., and it is unknown how it will work with VW WeConnect accounts. If you want to help test this, [please do](https://github.com/thomasesmith/php-vw-car-net/issues).
+
 ## Quick Start
 All you need now is a VW Car-Net account in good standing...
 ```php
@@ -150,7 +153,7 @@ This returns a string containing the vehicle id value of the currently selected 
 #### `getBatteryStatus()`: `array`
 ***EV ONLY*** This is just a shortcut that returns the `powerStatus` array that `getVehicleStatus()` includes as part of its output.
 
-### `getClimateStatus()`: `array`
+#### `getClimateStatus()`: `array`
 This returns an associative array containing all the details of the currently selected vehicle's climate system: the outdoor temperature, whether or not the climate control is running, where or not your defroster is running, and whether or not these conditions were triggered by a departure timer. ***Subject to request rate limit***
 
 #### `setUnpluggedClimateControl(bool $enabled)`: `void`
