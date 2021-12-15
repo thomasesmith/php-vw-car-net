@@ -1,3 +1,6 @@
+# 🚨 Abandon Alert! 🚨
+I sold my Volkswagen and of course am no longer a car-net customer, so I can no longer maintain this repo. It will be left here for reference. See "Contact" at the bottom of this document if you have any questions with your own project that you think I can help answer. 
+
 # An unofficial PHP Wrapper for the VW Car-Net API
 
 [![Latest Stable Version](https://poser.pugx.org/thomasesmith/php-vw-car-net/v)](//packagist.org/packages/thomasesmith/php-vw-car-net) [![Total Downloads](https://poser.pugx.org/thomasesmith/php-vw-car-net/downloads)](//packagist.org/packages/thomasesmith/php-vw-car-net) [![Latest Unstable Version](https://poser.pugx.org/thomasesmith/php-vw-car-net/v/unstable)](//packagist.org/packages/thomasesmith/php-vw-car-net) [![License](https://poser.pugx.org/thomasesmith/php-vw-car-net/license)](//packagist.org/packages/thomasesmith/php-vw-car-net)
